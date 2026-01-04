@@ -2,6 +2,8 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { Plus, Edit, Trash2 } from "lucide-react";
 
+export const dynamic = 'force-dynamic';
+
 async function getBrands() {
     return prisma.brand.findMany({
         include: {

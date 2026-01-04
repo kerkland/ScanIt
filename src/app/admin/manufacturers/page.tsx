@@ -10,6 +10,8 @@ import {
     ArrowLeft,
 } from "lucide-react";
 
+export const dynamic = 'force-dynamic';
+
 async function isAdmin() {
     const cookieStore = await cookies();
     return cookieStore.get("admin_session")?.value === "authenticated";

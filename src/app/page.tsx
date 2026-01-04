@@ -9,6 +9,9 @@ import {
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 
+// Force dynamic rendering - database queries require runtime
+export const dynamic = 'force-dynamic';
+
 const features = [
   {
     icon: Scan,

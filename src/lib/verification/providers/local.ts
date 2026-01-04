@@ -6,7 +6,7 @@
  */
 
 import { prisma } from '@/lib/prisma';
-import { VerificationProvider, VerificationResult } from './service';
+import { VerificationProvider, VerificationResult } from '../service';
 
 export class LocalDatabaseProvider implements VerificationProvider {
     name = 'Local Database';

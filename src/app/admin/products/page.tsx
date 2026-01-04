@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+
+export const dynamic = 'force-dynamic';
 import { Plus, Edit, Trash2, CheckCircle2, AlertTriangle, XCircle } from "lucide-react";
 
 async function getProducts() {
