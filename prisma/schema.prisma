@@ -1,0 +1,171 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// Product Categories (Beverages, Cosmetics, Alcohol, etc.)
+model Category {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  icon      String?
+  products  Product[]
+  createdAt DateTime  @default(now())
+}
+
+// Brands/Manufacturers
+model Brand {
+  id               String    @id @default(cuid())
+  name             String
+  logo             String?
+  website          String?
+  isOfficialPartner Boolean  @default(false)
+  products         Product[]
+  manufacturers    Manufacturer[]
+  createdAt        DateTime  @default(now())
+}
+
+// Products database - verified and community-reported
+model Product {
+  id              String    @id @default(cuid())
+  barcode         String?   @unique
+  qrCode          String?
+  name            String
+  description     String?
+  images          String?   // JSON array of image URLs
+  brandId         String?
+  brand           Brand?    @relation(fields: [brandId], references: [id])
+  categoryId      String?
+  category        Category? @relation(fields: [categoryId], references: [id])
+  isVerified      Boolean   @default(false)  // Officially verified by manufacturer
+  verificationStatus String @default("unknown") // unknown, authentic, suspicious, fake
+  fakeReportsCount Int      @default(0)
+  authenticScans   Int      @default(0)
+  metadata        String?   // JSON for extra data
+  scans           Scan[]
+  reports         Report[]
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+// User scans history
+model Scan {
+  id          String   @id @default(cuid())
+  sessionId   String   // Anonymous session ID (no signup required)
+  productId   String?
+  product     Product? @relation(fields: [productId], references: [id])
+  barcode     String   // The scanned barcode
+  scanType    String   // barcode, qr, manual
+  result      String   // found, not_found, suspicious
+  latitude    Float?
+  longitude   Float?
+  city        String?
+  createdAt   DateTime @default(now())
+}
+
+// Community reports of fake products
+model Report {
+  id            String   @id @default(cuid())
+  sessionId     String   // Anonymous session ID
+  productId     String?
+  product       Product? @relation(fields: [productId], references: [id])
+  barcode       String?
+  productName   String?
+  description   String
+  evidenceImages String? // JSON array of image URLs
+  purchaseLocation String?
+  merchantId    String?
+  merchant      Merchant? @relation(fields: [merchantId], references: [id])
+  status        String   @default("pending") // pending, reviewing, confirmed, rejected
+  latitude      Float?
+  longitude     Float?
+  city          String?
+  createdAt     DateTime @default(now())
+}
+
+// Merchants/Sellers
+model Merchant {
+  id           String   @id @default(cuid())
+  name         String
+  address      String?
+  city         String?
+  state        String?
+  latitude     Float?
+  longitude    Float?
+  avgRating    Float    @default(0)
+  reviewCount  Int      @default(0)
+  fakeReports  Int      @default(0)
+  isVerified   Boolean  @default(false) // Trusted seller badge
+  reviews      MerchantReview[]
+  reports      Report[]
+  createdAt    DateTime @default(now())
+}
+
+// Merchant reviews
+model MerchantReview {
+  id          String   @id @default(cuid())
+  sessionId   String
+  merchantId  String
+  merchant    Merchant @relation(fields: [merchantId], references: [id])
+  rating      Int      // 1-5
+  comment     String?
+  soldFake    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}
+
+// Optional user accounts (for history tracking)
+model User {
+  id              String   @id @default(cuid())
+  phone           String?  @unique
+  email           String?  @unique
+  name            String?
+  reputationScore Int      @default(0)
+  totalScans      Int      @default(0)
+  totalReports    Int      @default(0)
+  createdAt       DateTime @default(now())
+}
+
+// Manufacturer accounts for product registration
+model Manufacturer {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  passwordHash  String
+  companyName   String
+  phone         String?
+  address       String?
+  city          String?
+  state         String?
+  nafdacLicense String?  // NAFDAC manufacturer license
+  cacNumber     String?  // CAC registration number
+  logo          String?
+  website       String?
+  isApproved    Boolean  @default(false)  // Admin approves
+  isActive      Boolean  @default(true)
+  brandId       String?  // Link to existing Brand
+  brand         Brand?   @relation(fields: [brandId], references: [id])
+  products      ProductSubmission[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// Products submitted by manufacturers pending approval
+model ProductSubmission {
+  id              String       @id @default(cuid())
+  manufacturerId  String
+  manufacturer    Manufacturer @relation(fields: [manufacturerId], references: [id])
+  barcode         String
+  name            String
+  description     String?
+  images          String?      // JSON array of image URLs
+  categoryId      String?
+  nafdacRegNo     String?      // NAFDAC registration number
+  status          String       @default("pending") // pending, approved, rejected
+  rejectionReason String?
+  productId       String?      // Created product ID after approval
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+}
