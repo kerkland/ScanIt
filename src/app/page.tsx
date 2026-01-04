@@ -207,6 +207,27 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* Our Mission */}
+      <section className="py-20 px-4">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+            Our Mission
+          </h2>
+          <p className="text-gray-400 text-lg mb-6">
+            We're on a mission to eliminate counterfeit products from Nigerian markets.
+            But we can't do it alone — we need <span className="text-emerald-400 font-semibold">you</span>.
+          </p>
+          <p className="text-gray-400 mb-8">
+            Every fake product you report helps us build a stronger database and enhance our AI detection.
+            Together, we can protect millions of Nigerians from dangerous counterfeits.
+          </p>
+          <Link href="/report" className="btn-secondary inline-flex items-center gap-2">
+            <AlertTriangle className="w-5 h-5" />
+            Report a Fake Product
+          </Link>
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
